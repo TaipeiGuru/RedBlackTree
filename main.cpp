@@ -11,11 +11,12 @@
 using namespace std;
 
 // Function prototypes
-void addValue(Node* &treeRoot, int value);
+void add(Node* &treeRoot, int value);
 void fixTree(Node* &newNode, Node* &treeRoot);
 void printTree(Node* treeRoot, int tabCounter);
 void read(Node* &treeRoot);
-void 
+void search(Node* treeRoot, int value);
+void remove(Node* &treeRoot, int value);
 
 int main() { 
   
@@ -28,7 +29,7 @@ int main() {
   // Standard repeating message sequence using bool and while loop.
   bool active = true;
   while(active == true) {
-    cout << "\nPlease input a command below. You may \"ADD,\" \"READ,\" \"PRINT,\" and \"QUIT.\"" << endl;
+    cout << "\nPlease input a command below. You may \"ADD,\" \"READ,\" \"PRINT,\" \"SEARCH,\" and \"QUIT.\"" << endl;
     cin.get(input, 10);
     cin.clear();
     cin.ignore(10000, '\n');
@@ -45,6 +46,8 @@ int main() {
       cout << "\nYour number(s) have been added." << endl;
     } else if(strcmp(input, "PRINT") == 0) {
       printTree(treeRoot, 0);
+    } else if(strcmp(input, "SEARCH") == 0) {
+      search(treeRoot);
     } else if(strcmp(input, "QUIT") == 0) {
       active = false;
     } else {
@@ -52,6 +55,22 @@ int main() {
     }
   }
   return 0;
+}
+
+void search(Node* treeRoot, int value) {
+  if(treeRoot == NULL) {
+    cout << "The value " << value << " is not in the tree." << endl;
+  } else {
+    if(treeRoot->getValue() == value) {
+      cout << "The value " << value << " exists in this tree." << endl; 
+    } else {
+      if(value > treeRoot->getValue()) {
+        search(treeRoot->getRight(), value); 
+      } else { 
+        search(treeRoot->getLeft(), value); 
+      }
+    }
+  }
 }
 
 // fix tree function. Checks for 4 cases (root = NULL is checked in the add function). 
