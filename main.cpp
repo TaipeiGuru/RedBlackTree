@@ -11,7 +11,7 @@
 using namespace std;
 
 // Function prototypes
-void add(Node* &treeRoot, int value);
+void addValue(Node* &treeRoot, int value);
 void fixTree(Node* &newNode, Node* &treeRoot);
 void printTree(Node* treeRoot, int tabCounter);
 void read(Node* &treeRoot);
@@ -47,7 +47,12 @@ int main() {
     } else if(strcmp(input, "PRINT") == 0) {
       printTree(treeRoot, 0);
     } else if(strcmp(input, "SEARCH") == 0) {
-      search(treeRoot);
+	    int num;
+      cout << "\nEnter a number: " << endl;
+      cin >> num;
+      cin.clear();
+      cin.ignore(10000, '\n');
+      search(treeRoot, num);
     } else if(strcmp(input, "QUIT") == 0) {
       active = false;
     } else {
