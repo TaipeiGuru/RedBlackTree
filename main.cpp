@@ -20,7 +20,7 @@ void remove(Node* &treeRoot, int value);
 
 int main() { 
   
-	// Initializing variables
+  // Initializing variables
   Node* treeRoot = NULL;
   char input[20];
 
@@ -75,15 +75,21 @@ void deleteValue(Node* &treeRoot, int value) {
       treeRoot->setValue(current->getValue());
     }
     if(current->getLeft() != NULL && current->getRight() == NULL) {
-      if(current->getColor() == 1 && current->getRight->getColor() == 0) {
-      
-      } else if(current->getColor() == 0 && current->getRight->getColor() == 1) {
-
+      if(current->getColor() != current->getRight->getColor()) {
+        Node* temp = current;
+        current->getRight()->setParent(current->getParent());
+        if(current->getValue() < current->getParent()->getValue()) {
+          current->getParent()->setLeft(current->getRight()); 
+        } else {
+          current->getParent()->setRight(current->getRight()); 
+        }
+        current = 
+        delete temp;
       }
     } else if(current->getLeft() != NULL && current->getRight() == NULL) {
-      if(current->getColor() == 1 && current->getRight->getColor() == 0) {
+      if(current->getColor() == 1 && current->getLeft->getColor() == 0) {
       
-      } else if(current->getColor() == 0 && current->getRight->getColor() == 1) {
+      } else if(current->getColor() == 0 && current->getLeft->getColor() == 1) {
 
       }
     }
