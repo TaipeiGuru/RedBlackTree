@@ -62,104 +62,44 @@ int main() {
   return 0;
 }
 
-void deleteValue(Node* &treeRoot, Node* &rootParent, int value) {
+void deleteValue(Node* &treeRoot, int value) {
 
-  // Item not found
-  if(treeRoot->getValue() == value && treeRoot->getRight() == NULL && treeRoot->getLeft() == NULL && rootParent == NULL) {
-    delete treeRoot;
-    treeRoot = NULL;
-    cout << "\nThe earliest instance of " << value << " has been removed." << endl;
-    
-    // Item at leaf
-  } else if(treeRoot->getValue() == value && treeRoot->getRight() == NULL && treeRoot->getLeft() == NULL) {
-    if(treeRoot->getValue() >= rootParent->getValue()) {
-      rootParent->setRight(NULL);
-    } else {
-      rootParent->setLeft(NULL);
-    }
-    delete treeRoot;
-    treeRoot = NULL;
-    cout << "\nThe earliest instance of " << value << " has been removed." << endl;
-    
-    // Item at in-tree node with a left child
-  } else if(treeRoot->getValue() == value && treeRoot->getRight() == NULL && treeRoot->getLeft() != NULL) {
-    
-    // Check to see if tree Root is being examined or not
-    if(rootParent != NULL) {
-      Node* leftChild = treeRoot->getLeft();
-      if(leftChild->getValue() >= rootParent->getValue()) {
-	      rootParent->setRight(leftChild);
-      } else {
-	      rootParent->setLeft(leftChild);
+  // Value match found
+  if(treeRoot->getValue()) {
+    Node* current = treeRoot;
+	  if(treeRoot->getLeft() != NULL && treeRoot->getRight() != NULL) {
+      current = treeRoot->getRight();
+      while(current->getLeft() != NULL) {
+        current = current->getLeft(); 
       }
-      delete treeRoot;
-      treeRoot = NULL;
-    } else {
-      Node* tempNode = treeRoot;
-      treeRoot = treeRoot->getLeft();
-      delete tempNode;
-      tempNode = NULL;
+      treeRoot->setValue(current->getValue());
     }
-    cout << "\nThe earliest instance of " << value << " has been removed." << endl;
-    
-    // Item at in-tree node with right child
-  } else if(treeRoot->getValue() == value && treeRoot->getRight() != NULL && treeRoot->getLeft() == NULL) {
-    if(rootParent != NULL) {
-      Node* rightChild = treeRoot->getRight();
-      if(rightChild->getValue() >= rootParent->getValue()) {
-	      rootParent->setRight(rightChild);
-      } else {
-	      rootParent->setLeft(rightChild);
+    if(current->getLeft() != NULL && current->getRight() == NULL) {
+      if(current->getColor() == 1 && current->getRight->getColor() == 0) {
+      
+      } else if(current->getColor() == 0 && current->getRight->getColor() == 1) {
+
       }
-      delete treeRoot;
-      treeRoot = NULL;
-    } else {
-      Node* tempNode = treeRoot;
-      treeRoot = treeRoot->getRight();
-      delete tempNode;
-      tempNode = NULL;
+    } else if(current->getLeft() != NULL && current->getRight() == NULL) {
+      if(current->getColor() == 1 && current->getRight->getColor() == 0) {
+      
+      } else if(current->getColor() == 0 && current->getRight->getColor() == 1) {
+
+      }
     }
-    cout << "\nThe earliest instance of " << value << " has been removed." << endl;
     
-  // Item at in-tree node with two children, but the right Child has no left child. In-order successor is the right child
-  } else if(treeRoot->getValue() == value && treeRoot->getRight() != NULL && treeRoot->getLeft() != NULL && treeRoot->getRight()->getLeft() == NULL) {
-    treeRoot->setValue(treeRoot->getRight()->getValue());
-    Node* deletedNode = treeRoot->getRight();
-    treeRoot->setRight(deletedNode->getRight());
-    delete deletedNode;
-    deletedNode = NULL;
-    cout << "\nThe earliest instance of " << value << " has been removed." << endl;
     
-  // Item at in-tree node with two children. In-order successor is the leftmost child of the right child
-  } else if(treeRoot->getValue() == value && treeRoot->getRight() != NULL && treeRoot->getLeft() != NULL && treeRoot->getRight()->getLeft() != NULL) {
-    Node* current = treeRoot->getRight();
-    while(current->getLeft()->getLeft() != NULL) {
-      current = current->getLeft();
-    }
-    Node* inOrderSuccessor = current->getLeft();
-    if(inOrderSuccessor->getRight() != NULL) {
-      Node* tempNode = inOrderSuccessor->getRight();
-      current->setLeft(tempNode);
-      treeRoot->setValue(inOrderSuccessor->getValue());
-      delete inOrderSuccessor;
-      inOrderSuccessor = NULL;
-    } else {
-      treeRoot->setValue(inOrderSuccessor->getValue());
-      delete inOrderSuccessor;
-      current->setLeft(NULL);
-    }
-    cout << "\nThe earliest instance of " << value << " has been removed." << endl;
     
   // None of the above scenarios apply. Find the appropriate child to examine (if it exists) and then use recursion
   } else {
     if(value >= treeRoot->getValue() && treeRoot->getRight() != NULL) {
       Node* rightChild = treeRoot->getRight();
-      deleteValue(rightChild, treeRoot, value); 
+      deleteValue(rightChild, value); 
     } else if(value >= treeRoot->getValue() && treeRoot->getRight() == NULL) {
       cout << "Value is not in tree." << endl;
     } else if(value < treeRoot->getValue() && treeRoot->getLeft() != NULL) {
       Node* leftChild = treeRoot->getLeft();
-      deleteValue(leftChild, treeRoot, value);
+      deleteValue(leftChild, value);
     } else if(value < treeRoot->getValue() && treeRoot->getLeft() == NULL) {
       cout << "Value is not in tree." << endl;
     }
