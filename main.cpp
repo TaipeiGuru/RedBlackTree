@@ -112,7 +112,31 @@ void fixTreeDeleteLeft(Node* &current) {
       
       // case 5
     } else if(sibling->getColor() + sibling->getRight()->getColor() == 2 && sibling->getLeft()->getColor() == 0 && current->getValue() < parent->getValue()) {
+      parent->setRight(sibling->getLeft());
+      sibling->getLeft()->setParent(parent);
+      sibling->getLeft()->getRight()->setParent(sibling);
+      sibling->setLeft(sibling->getLeft()->getRight());
+      parent->getRight()->setRight(sibling);
+      sibling->setParent(parent->getRight());
+      sibling->setColor(0);
+      sibling->getParent()->setColor(1);
       
+    // case 6
+    } else if(sibling->getColor() == 1 && sibling->getRight()->getColor() == 0 && current->getValue() < parent->getValue()){
+      if(parent->getValue() < parent->getParent()->getValue()) {
+        parent->getParent()->setLeft(sibling); 
+      } else {
+        parent->getParent()->setRight(sibling);
+      }
+      if(sibling->getLeft() != NULL) {
+        sibling->getLeft()->setParent(parent);
+        parent->setRight(sibling->getLeft());
+      }
+      parent->setParent(sibling);
+      sibling->setLeft(parent);
+      int color = sibling->getColor();
+      sibling->setColor(parent->getColor());
+      parent->setColor(color);
     }
   } 
 }
