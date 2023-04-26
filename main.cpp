@@ -18,7 +18,7 @@ void fixTreeDeleteRight(Node* &current, Node* &treeRoot);
 void printTree(Node* treeRoot, int tabCounter);
 void read(Node* &treeRoot);
 void search(Node* treeRoot, int value);
-void remove(Node* &treeRoot, int value);
+void remove(Node* &inputNode, int value, Node* &treeRoot);
 
 int main() { 
   
@@ -31,7 +31,7 @@ int main() {
   // Standard repeating message sequence using bool and while loop.
   bool active = true;
   while(active == true) {
-    cout << "\nPlease input a command below. You may \"ADD,\" \"READ,\" \"PRINT,\" \"SEARCH,\" and \"QUIT.\"" << endl;
+    cout << "\nPlease input a command below. You may \"ADD,\" \"READ,\" \"PRINT,\" \"SEARCH,\" \"DELETE,\" and \"QUIT.\"" << endl;
     cin.get(input, 10);
     cin.clear();
     cin.ignore(10000, '\n');
@@ -47,14 +47,33 @@ int main() {
       read(treeRoot);
       cout << "\nYour number(s) have been added." << endl;
     } else if(strcmp(input, "PRINT") == 0) {
-      printTree(treeRoot, 0);
+      if(treeRoot == NULL) {
+	cout << "There's nothing in the tree to print." << endl;
+      } else { 
+	printTree(treeRoot, 0);
+      }
     } else if(strcmp(input, "SEARCH") == 0) {
-	    int num;
-      cout << "\nEnter a number: " << endl;
-      cin >> num;
-      cin.clear();
-      cin.ignore(10000, '\n');
-      search(treeRoot, num);
+      if(treeRoot == NULL) {
+	cout << "There's nothing in the tree to search." << endl;
+      } else {
+	int num;
+	cout << "\nEnter a number: " << endl;
+	cin >> num;
+	cin.clear();
+	cin.ignore(10000, '\n');
+	search(treeRoot, num);
+      }
+    } else if(strcmp(input, "DELETE") == 0) {
+      if(treeRoot == NULL) {
+	cout << "There's nothing in the tree to print." << endl;
+      } else { 
+	int num;
+	cout << "What number would you like to delete?" << endl;
+	cin >> num;
+	cin.clear();
+	cin.ignore(10000, '\n');
+	remove(treeRoot, num, treeRoot);
+      }
     } else if(strcmp(input, "QUIT") == 0) {
       active = false;
     } else {
@@ -101,7 +120,7 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
     // case 3
     if(sibling->getColor() == 1) {
       sibling->setColor(0);
-      fixTreeDelete(parent);
+      fixTreeDeleteLeft(parent, treeRoot);
     }
     // case 4
     if(sibling->getRight() != NULL && sibling->getLeft() != NULL) {
@@ -128,7 +147,7 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
         sibling->getParent()->setColor(1);
       }
      // case 5 but with NULL children
-    } else if(sibling->getRight() == NULL && sibling->getLeft() != NULL && ) {
+    } else if(sibling->getRight() == NULL && sibling->getLeft() != NULL) {
       if(sibling->getColor() == 1 && sibling->getLeft()->getColor() == 0 && current->getValue() < parent->getValue()) {
         parent->setRight(sibling->getLeft());
         sibling->getLeft()->setParent(parent);
@@ -153,7 +172,7 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
           } else {
             parent->getParent()->setRight(sibling);
           }
-          sibling->setParent(parent0>getParent());
+          sibling->setParent(parent->getParent());
         }
         if(sibling->getLeft() != NULL) {
           sibling->getLeft()->setParent(parent);
@@ -206,7 +225,7 @@ void fixTreeDeleteRight(Node* &current, Node* &treeRoot) {
     // case 3
     if(sibling->getColor() == 1) {
       sibling->setColor(0);
-      fixTreeDelete(parent);
+      fixTreeDeleteRight(parent, treeRoot);
     }
     // case 4
     if(sibling->getLeft() != NULL && sibling->getRight() != NULL) {
@@ -258,7 +277,7 @@ void fixTreeDeleteRight(Node* &current, Node* &treeRoot) {
           } else {
             parent->getParent()->setRight(sibling);
           }
-          sibling->setParent(parent0>getParent());
+          sibling->setParent(parent->getParent());
         }
         if(sibling->getRight() != NULL) {
           sibling->getRight()->setParent(parent);
@@ -274,19 +293,24 @@ void fixTreeDeleteRight(Node* &current, Node* &treeRoot) {
   }
 }
 
-void deleteValue(Node* &treeRoot, int value) {
+void remove(Node* &inputNode, int value, Node* &treeRoot) {
   // Value match found
-  if(treeRoot->getValue()) {
-    Node* current = treeRoot;
-	  if(treeRoot->getLeft() != NULL && treeRoot->getRight() != NULL) {
-      current = treeRoot->getRight();
+  if(inputNode->getValue() == value) {
+    if(inputNode->getParent() == NULL && inputNode->getLeft() == NULL && inputNode->getRight() == NULL) {
+      delete inputNode;
+      treeRoot = NULL;
+      return;
+    }
+    Node* current = inputNode;
+    if(inputNode->getLeft() != NULL && inputNode->getRight() != NULL) {
+      current = inputNode->getRight();
       while(current->getLeft() != NULL) {
         current = current->getLeft(); 
       }
       treeRoot->setValue(current->getValue());
     }
     if(current->getLeft() == NULL && current->getRight() != NULL) {
-      if(current->getColor() != current->getRight->getColor()) {
+      if(current->getColor() != current->getRight()->getColor()) {
         Node* temp = current;
         current->getRight()->setParent(current->getParent());
         if(current->getValue() < current->getParent()->getValue()) {
@@ -301,7 +325,7 @@ void deleteValue(Node* &treeRoot, int value) {
         fixTreeDeleteLeft(current, treeRoot);
       }
     } else if(current->getRight() == NULL && current->getLeft() != NULL) {
-      if(current->getColor() != current->getLeft->getColor()) {
+      if(current->getColor() != current->getLeft()->getColor()) {
         Node* temp = current;
         current->getLeft()->setParent(current->getParent());
         if(current->getValue() < current->getParent()->getValue()) {
@@ -320,12 +344,13 @@ void deleteValue(Node* &treeRoot, int value) {
   } else {
     if(value >= treeRoot->getValue() && treeRoot->getRight() != NULL) {
       Node* rightChild = treeRoot->getRight();
-      deleteValue(rightChild, value); 
+      remove(rightChild, value, treeRoot); 
     } else if(value >= treeRoot->getValue() && treeRoot->getRight() == NULL) {
       cout << "Value is not in tree." << endl;
     } else if(value < treeRoot->getValue() && treeRoot->getLeft() != NULL) {
+      cout << "h" << endl;
       Node* leftChild = treeRoot->getLeft();
-      deleteValue(leftChild, value);
+      remove(leftChild, value, treeRoot);
     } else if(value < treeRoot->getValue() && treeRoot->getLeft() == NULL) {
       cout << "Value is not in tree." << endl;
     }
