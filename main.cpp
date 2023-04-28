@@ -339,7 +339,15 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
       } else {
         fixTreeDeleteRight(current, treeRoot);
       }
-    }    
+    } else if(current->getRight() == NULL && current->getLeft() == NULL) {
+      if(current->getValue() < current->getParent()->getValue()) {
+	current->getParent()->setLeft(NULL);
+      } else {
+	current->getParent()->setRight(NULL);
+      }
+      delete current;
+      current = NULL;
+    }
   // None of the above scenarios apply. Find the appropriate child to examine (if it exists) and then use recursion
   } else {
     if(value >= treeRoot->getValue() && treeRoot->getRight() != NULL) {
@@ -348,7 +356,6 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
     } else if(value >= treeRoot->getValue() && treeRoot->getRight() == NULL) {
       cout << "Value is not in tree." << endl;
     } else if(value < treeRoot->getValue() && treeRoot->getLeft() != NULL) {
-      cout << "h" << endl;
       Node* leftChild = treeRoot->getLeft();
       remove(leftChild, value, treeRoot);
     } else if(value < treeRoot->getValue() && treeRoot->getLeft() == NULL) {
