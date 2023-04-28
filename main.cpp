@@ -269,6 +269,7 @@ void fixTreeDeleteRight(Node* &current, Node* &treeRoot) {
     } else if(sibling->getLeft() != NULL) {
       if(sibling->getColor() == 1 && sibling->getLeft()->getColor() == 0 && current->getValue() < parent->getValue()){
         if(parent->getParent() == NULL) {
+
           sibling->setParent(NULL);
           treeRoot = sibling;
         } else {
@@ -295,6 +296,7 @@ void fixTreeDeleteRight(Node* &current, Node* &treeRoot) {
 
 void remove(Node* &inputNode, int value, Node* &treeRoot) {
   // Value match found
+  int traversalCounter = 0;
   if(inputNode->getValue() == value) {
     if(inputNode->getParent() == NULL && inputNode->getLeft() == NULL && inputNode->getRight() == NULL) {
       delete inputNode;
@@ -303,12 +305,14 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
     }
     Node* current = inputNode;
     if(inputNode->getLeft() != NULL && inputNode->getRight() != NULL) {
-      current = inputNode->getRight();
-      while(current->getLeft() != NULL) {
-        current = current->getLeft(); 
+      current = inputNode->getLeft();
+      while(current->getRight() != NULL) {
+        current = current->getRight();
+	traversalCounter++;
       }
-      treeRoot->setValue(current->getValue());
+      inputNode->setValue(current->getValue());
     }
+    cout << current->getValue() << endl;
     if(current->getLeft() == NULL && current->getRight() != NULL) {
       if(current->getColor() != current->getRight()->getColor()) {
         Node* temp = current;
@@ -340,10 +344,18 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
         fixTreeDeleteRight(current, treeRoot);
       }
     } else if(current->getRight() == NULL && current->getLeft() == NULL) {
-      if(current->getValue() < current->getParent()->getValue()) {
-	current->getParent()->setLeft(NULL);
+      if(traversalCounter == 0) {
+	if(current->getValue() < value) {
+	  current->getParent()->setLeft(NULL);
+	} else {
+	  current->getParent()->setRight(NULL);
+	}
       } else {
-	current->getParent()->setRight(NULL);
+	if(current->getValue() < current->getParent()->getValue()) {
+	  current->getParent()->setLeft(NULL);
+	} else {
+	  current->getParent()->setRight(NULL);
+	}
       }
       delete current;
       current = NULL;
