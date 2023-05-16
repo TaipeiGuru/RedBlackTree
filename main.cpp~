@@ -27,7 +27,6 @@ int main() {
   char input[20];
 
   cout << "Welcome to Red Black Tree!" << endl;
-  read(treeRoot);
   // Standard repeating message sequence using bool and while loop.
   bool active = true;
   while(active == true) {
@@ -84,6 +83,7 @@ int main() {
 }
 
 void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
+  // Node* current = node;
   Node* parent = NULL;
   if(current->getParent() != NULL) {
     parent = current->getParent(); 
@@ -439,22 +439,29 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
 	}
         fixTreeDeleteLeft(current, treeRoot);
 	printTree(treeRoot, 0);
-	cout << "IN " << inputNode->getValue() << endl;
-	cout << "C " << current->getValue() << endl;
-	inputNode->setValue(current->getValue());
-	if(traversalCounter == 0) {
-	  if(current->getLeft() != NULL) {
-	    current->getParent()->setRight(current->getLeft());
-	    current->getLeft()->setParent(current->getParent());
+        Node* tempNode = treeRoot;
+	while(tempNode->getValue() != value) {
+	  if(value < tempNode->getValue()) {
+	    tempNode = tempNode->getLeft();
 	  } else {
-	    current->getParent()->setRight(NULL);
+	    tempNode = tempNode->getRight();
 	  }
-	} else {
+	}
+	cout << "TR " << treeRoot->getValue() << endl;
+	tempNode->setValue(current->getValue());
+	if(traversalCounter == 0) {
 	  if(current->getLeft() != NULL) {
 	    current->getParent()->setLeft(current->getLeft());
 	    current->getLeft()->setParent(current->getParent());
 	  } else {
 	    current->getParent()->setLeft(NULL);
+	  }
+	} else {
+	  if(current->getLeft() != NULL) {
+	    current->getParent()->setRight(current->getLeft());
+	    current->getLeft()->setParent(current->getParent());
+	  } else {
+	    current->getParent()->setRight(NULL);
 	  }
 	}
 	delete current;

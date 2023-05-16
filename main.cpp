@@ -27,7 +27,6 @@ int main() {
   char input[20];
 
   cout << "Welcome to Red Black Tree!" << endl;
-  read(treeRoot);
   // Standard repeating message sequence using bool and while loop.
   bool active = true;
   while(active == true) {
@@ -84,7 +83,6 @@ int main() {
 }
 
 void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
-  // Node* current = node;
   Node* parent = NULL;
   if(current->getParent() != NULL) {
     parent = current->getParent(); 
@@ -97,12 +95,12 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
   }
   // case 1
   if(parent == NULL) {
-    treeRoot = current->getLeft();
+    /*treeRoot = current->getLeft();
     current->getLeft()->setParent(NULL);
     if(current->getRight() != NULL) {
       current->getLeft()->setRight(current->getRight());
     }
-    delete current;
+    delete current; */
     return;
   }
   if(sibling != NULL) {
@@ -353,6 +351,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
         delete current;
         current = NULL;
         return;
+	// node has no left children
       } else {
         if(inputNode->getRight() != NULL) {
           if(inputNode->getParent() != NULL) {
@@ -363,9 +362,20 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
             inputNode->setParent(NULL);
           }
           delete inputNode;
+
+	  // node has no right children
         } else {
+	  if(inputNode->getParent() != NULL) {
+	    if(inputNode->getParent()->getValue() <= inputNode->getValue()) {
+	      inputNode->getParent()->setRight(NULL);
+	    } else {
+	      inputNode->getParent()->setLeft(NULL);
+	    }
+	  } else {
+	    treeRoot = NULL;
+	  }
           delete inputNode;
-          treeRoot = NULL;
+          inputNode = NULL;
         }
       }
       // value is black
@@ -380,7 +390,22 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
             current->getParent()->setRight(current->getRight()); 
           }
           delete current;
-        } else {
+        } else if(current->getRight()->getColor() == 0) {
+	  if(current->getParent() != NULL) {
+	    if(current->getValue() < current->getParent()->getValue()) {
+	      current->getParent()->setLeft(current->getRight());
+	    } else {
+	      current->getParent()->setRight(current->getRight());
+	    }
+	    current->getRight()->setColor(1);
+	  } else {
+	    current->getRight()->setParent(NULL);
+	    treeRoot = current->getRight();
+	    current->getRight()->setColor(1);
+	  }
+	  delete current;
+	  current = NULL;
+	} else {
           fixTreeDeleteRight(current, treeRoot);
         }
       } else if(current->getRight() == NULL && current->getLeft() != NULL) {
@@ -393,7 +418,22 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
             current->getParent()->setRight(current->getLeft()); 
           }
           delete current;
-        } else {
+        } else if(current->getLeft()->getColor() == 0) {
+	  if(current->getParent() != NULL) {
+	    if(current->getValue() < current->getParent()->getValue()) {
+	      current->getParent()->setLeft(current->getLeft());
+	    } else {
+	      current->getParent()->setRight(current->getLeft());
+	    }
+	    current->getLeft()->setColor(1);
+	  } else {
+	    current->getLeft()->setParent(NULL);
+	    treeRoot = current->getLeft();
+	    current->getLeft()->setColor(1);
+	  }
+	  delete current;
+	  current = NULL;
+	} else {
           fixTreeDeleteLeft(current, treeRoot);
         }
       } else if(current->getRight() == NULL && current->getLeft() == NULL) {
@@ -439,19 +479,15 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
 	  return;
 	}
         fixTreeDeleteLeft(current, treeRoot);
-	printTree(treeRoot, 0);
-	cout << treeRoot->getValue() << endl;
-        inputNode = treeRoot;
-	cout << treeRoot->getValue() << endl;
-	while(inputNode->getValue() != value) {
-	  if(value < inputNode->getValue()) {
-	    inputNode = inputNode->getLeft();
+        Node* tempNode = treeRoot;
+	while(tempNode->getValue() != value) {
+	  if(value < tempNode->getValue()) {
+	    tempNode = tempNode->getLeft();
 	  } else {
-	    inputNode = inputNode->getRight();
+	    tempNode = tempNode->getRight();
 	  }
 	}
-	cout << "TR " << treeRoot->getValue() << endl;
-	inputNode->setValue(current->getValue());
+	tempNode->setValue(current->getValue());
 	if(traversalCounter == 0) {
 	  if(current->getLeft() != NULL) {
 	    current->getParent()->setLeft(current->getLeft());
@@ -754,12 +790,12 @@ void addValue(Node* &treeRoot, int value) {
 void read(Node* &treeRoot) {
   
   // The file name is entered and then a file with that name is opened.
-  /*cout << "Please enter the name of your file:" << endl;
+  cout << "Please enter the name of your file:" << endl;
   char input[20];
   cin >> input;
-  cin.ignore(10000, '\n'); */
+  cin.ignore(10000, '\n'); 
   ifstream numFile;
-  numFile.open("num.txt");
+  numFile.open(input);
   int num;
   
   // While the file is open, take in the first number. Cin separates by whitespace so no additional work needed. 
