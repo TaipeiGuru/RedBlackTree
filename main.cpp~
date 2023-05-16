@@ -84,7 +84,6 @@ int main() {
 }
 
 void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
-  // Node* current = node;
   Node* parent = NULL;
   if(current->getParent() != NULL) {
     parent = current->getParent(); 
@@ -440,31 +439,22 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
 	}
         fixTreeDeleteLeft(current, treeRoot);
 	printTree(treeRoot, 0);
-	cout << treeRoot->getValue() << endl;
-        inputNode = treeRoot;
-	cout << treeRoot->getValue() << endl;
-	while(inputNode->getValue() != value) {
-	  if(value < inputNode->getValue()) {
-	    inputNode = inputNode->getLeft();
-	  } else {
-	    inputNode = inputNode->getRight();
-	  }
-	}
-	cout << "TR " << treeRoot->getValue() << endl;
+	cout << "IN " << inputNode->getValue() << endl;
+	cout << "C " << current->getValue() << endl;
 	inputNode->setValue(current->getValue());
 	if(traversalCounter == 0) {
-	  if(current->getLeft() != NULL) {
-	    current->getParent()->setLeft(current->getLeft());
-	    current->getLeft()->setParent(current->getParent());
-	  } else {
-	    current->getParent()->setLeft(NULL);
-	  }
-	} else {
 	  if(current->getLeft() != NULL) {
 	    current->getParent()->setRight(current->getLeft());
 	    current->getLeft()->setParent(current->getParent());
 	  } else {
 	    current->getParent()->setRight(NULL);
+	  }
+	} else {
+	  if(current->getLeft() != NULL) {
+	    current->getParent()->setLeft(current->getLeft());
+	    current->getLeft()->setParent(current->getParent());
+	  } else {
+	    current->getParent()->setLeft(NULL);
 	  }
 	}
 	delete current;
