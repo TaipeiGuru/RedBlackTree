@@ -101,6 +101,8 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
       current->getLeft()->setRight(current->getRight());
     }
     delete current; */
+    cout << "case 1" << endl;
+    printTree(treeRoot, 0);
     return;
   }
   if(sibling != NULL) {
@@ -131,6 +133,8 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
       // case 3 but with NULL children
     } else if(sibling->getColor() == 1 && sibling->getLeft() == NULL && sibling->getRight() == NULL) {
       sibling->setColor(0);
+      cout << "case 3 null children" << endl;
+	    printTree(treeRoot, 0);
       fixTreeDeleteLeft(parent, treeRoot);
     }
     // case 4
@@ -382,6 +386,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
       }
       // value is black
     } else {
+      // node has right child
       if(current->getLeft() == NULL && current->getRight() != NULL) {
         if(current->getColor() == 0) {
           current->getRight()->setColor(1);
@@ -410,6 +415,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
 	} else {
           fixTreeDeleteRight(current, treeRoot);
         }
+        // node has left child
       } else if(current->getRight() == NULL && current->getLeft() != NULL) {
         if(current->getColor() == 0) {
           current->getLeft()->setColor(1);
@@ -438,6 +444,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
 	} else {
           fixTreeDeleteLeft(current, treeRoot);
         }
+        // node has no children
       } else if(current->getRight() == NULL && current->getLeft() == NULL) {
         if(current->getParent() == NULL) {
           delete inputNode;
@@ -450,53 +457,56 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
             fixTreeDeleteRight(current, treeRoot);
           }
         }
+        // node has two children
       } else if(inputNode->getLeft() != NULL && inputNode->getRight() != NULL) {
         current = inputNode->getLeft();
-	int traversalCounter = 0;
+	      int traversalCounter = 0;
         while(current->getRight() != NULL) {
           current = current->getRight();
-	  traversalCounter++;
+	        traversalCounter++;
         }
         if(current->getLeft() != NULL) {
           if(current->getColor() != current->getLeft()->getColor()) {
-	    if(traversalCounter > 0) {
-	      current->getParent()->setRight(current->getLeft());
-	    } else {
-	      current->getParent()->setLeft(current->getLeft());
-	    }
+	          if(traversalCounter > 0) {
+	            current->getParent()->setRight(current->getLeft());
+	          } else {
+	            current->getParent()->setLeft(current->getLeft());
+	          }
             current->getLeft()->setColor(1);
             current->getLeft()->setParent(current->getParent());
-	    inputNode->setValue(current->getValue());
+	          inputNode->setValue(current->getValue());
             delete current;
             return;
           }
         } else if(current->getColor() == 0) {
-	  if(traversalCounter > 0) {
-	    current->getParent()->setRight(NULL);
-	  } else {
-	    current->getParent()->setLeft(NULL);
-	  }
-	  inputNode->setValue(current->getValue());
-	  delete current;
-	  return;
-	}
+	        if(traversalCounter > 0) {
+	          current->getParent()->setRight(NULL);
+	        } else {
+	          current->getParent()->setLeft(NULL);
+	        } 
+	        inputNode->setValue(current->getValue());
+	        delete current;
+	        return;
+	      }
         fixTreeDeleteLeft(current, treeRoot);
+        cout << "post fix" << endl;
+        printTree(treeRoot, 0);
         Node* tempNode = treeRoot;
-	while(tempNode->getValue() != value) {
-	  if(value < tempNode->getValue()) {
-	    tempNode = tempNode->getLeft();
-	  } else {
-	    tempNode = tempNode->getRight();
-	  }
-	}
-	tempNode->setValue(current->getValue());
-	if(traversalCounter == 0) {
-	  if(current->getLeft() != NULL) {
-	    current->getParent()->setLeft(current->getLeft());
-	    current->getLeft()->setParent(current->getParent());
-	  } else {
-	    current->getParent()->setLeft(NULL);
-	  }
+        while(tempNode->getValue() != value) {
+          if(value < tempNode->getValue()) {
+            tempNode = tempNode->getLeft();
+          } else {
+            tempNode = tempNode->getRight();
+          }
+        }
+	      tempNode->setValue(current->getValue());
+        if(traversalCounter == 0) {
+          if(current->getLeft() != NULL) {
+            current->getParent()->setLeft(current->getLeft());
+            current->getLeft()->setParent(current->getParent());
+          } else {
+            current->getParent()->setLeft(NULL);
+          }
 	} else {
 	  if(current->getLeft() != NULL) {
 	    current->getParent()->setRight(current->getLeft());
