@@ -323,6 +323,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
     Node* current = inputNode;
     // Value is red
     if(inputNode->getColor() == 0) {
+	    // Left child exists
       if(inputNode->getLeft() != NULL) { 
 	int traversalCounter = 0;
 	current = inputNode->getLeft();
@@ -334,6 +335,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
         if(current->getColor() == 1) {
           inputNode->setColor(1); 
         }
+        // inorder successor has left child
         if(current->getLeft() != NULL) {
 	  if(traversalCounter > 0) {
 	    current->getParent()->setRight(current->getLeft());
