@@ -101,12 +101,10 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
       current->getLeft()->setRight(current->getRight());
     }
     delete current; */
-    printTree(treeRoot, 0);
     return;
   }
   if(sibling != NULL) {
     // case 2
-    cout << current->getValue() << endl;
     if(sibling->getColor() == 0) {
       if(sibling->getLeft() != NULL) {
         parent->setRight(sibling->getLeft());
@@ -124,7 +122,6 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
       parent->setColor(sibling->getColor());
       sibling->setColor(color);
     }
-    cout << current->getValue() << endl;
     // case 3
     if(sibling->getColor() == 1 && sibling->getLeft() != NULL && sibling->getRight() != NULL) {
       if(sibling->getLeft()->getColor() == 1 && sibling->getRight()->getColor() == 1) {
@@ -189,7 +186,7 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
           sibling->setParent(NULL);
           treeRoot = sibling;
         } else {
-          if(parent->getValue() < parent->getParent()->getValue()) {
+	  if(parent->getValue() < parent->getParent()->getValue()) {
             parent->getParent()->setLeft(sibling); 
           } else {
             parent->getParent()->setRight(sibling);
@@ -329,7 +326,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
     Node* current = inputNode;
     // Value is red
     if(inputNode->getColor() == 0) {
-	    // Left child exists
+      // Left child exists
       if(inputNode->getLeft() != NULL) { 
 	int traversalCounter = 0;
 	current = inputNode->getLeft();
@@ -338,9 +335,9 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
 	  traversalCounter++;
 	}
         inputNode->setValue(current->getValue());
-        if(current->getColor() == 1) {
+        /*if(current->getColor() == 1) {
           inputNode->setColor(1); 
-        }
+	  }*/
         // inorder successor has left child
         if(current->getLeft() != NULL) {
 	  if(traversalCounter > 0) {
@@ -349,6 +346,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
 	    current->getParent()->setLeft(current->getLeft());
 	  }
 	  current->getLeft()->setParent(current->getParent());
+	  current->getLeft()->setColor(1-inputNode->getColor());
         } else {
 	  if(traversalCounter > 0) {
 	    current->getParent()->setRight(NULL);
@@ -457,8 +455,38 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
         } else {
           if(current->getValue() < current->getParent()->getValue()) {
             fixTreeDeleteLeft(current, treeRoot);
+	    if(current->getValue() < current->getParent()->getValue()) {
+	      if(current->getLeft() != NULL) {	
+		current->getParent()->setLeft(current->getLeft());
+		current->getLeft()->setParent(current->getParent());
+	      } else {
+		current->getParent()->setLeft(NULL);
+	      }
+	    } else {
+	      if(current->getLeft() != NULL) {
+		current->getParent()->setRight(current->getLeft());
+		current->getLeft()->setParent(current->getParent());
+	      } else {
+		current->getParent()->setRight(NULL);
+	      }
+	    }
           } else {
             fixTreeDeleteRight(current, treeRoot);
+	    if(current->getValue() < current->getParent()->getValue()) {
+	      if(current->getRight() != NULL) {	
+		current->getParent()->setLeft(current->getRight());
+		current->getRight()->setParent(current->getParent());
+	      } else {
+		current->getParent()->setLeft(NULL);
+	      }
+	    } else {
+	      if(current->getRight() != NULL) {
+		current->getParent()->setRight(current->getRight());
+		current->getRight()->setParent(current->getParent());
+	      } else {
+		current->getParent()->setRight(NULL);
+	      }
+	    }
           }
         }
         // node has two children
@@ -467,7 +495,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
 	int traversalCounter = 0;
         while(current->getRight() != NULL) {
           current = current->getRight();
-	        traversalCounter++;
+	  traversalCounter++;
         }
         if(current->getLeft() != NULL) {
           if(current->getColor() != current->getLeft()->getColor()) {
@@ -493,8 +521,6 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
 	  return;
 	}
         fixTreeDeleteLeft(current, treeRoot);
-        cout << "post fix" << endl;
-        printTree(treeRoot, 0);
         Node* tempNode = treeRoot;
         while(tempNode->getValue() != value) {
           if(value < tempNode->getValue()) {
