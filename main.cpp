@@ -455,21 +455,31 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
         } else {
           if(current->getValue() < current->getParent()->getValue()) {
             fixTreeDeleteLeft(current, treeRoot);
-	    if(current->getValue() < current->getParent()->getValue()) {
-	      if(current->getLeft() != NULL) {	
-		current->getParent()->setLeft(current->getLeft());
-		current->getLeft()->setParent(current->getParent());
+	    Node* temp = treeRoot;
+	    while(temp->getValue() != value) {
+	      if(value < temp->getValue()) {
+		temp = temp->getLeft();
 	      } else {
-		current->getParent()->setLeft(NULL);
-	      }
-	    } else {
-	      if(current->getLeft() != NULL) {
-		current->getParent()->setRight(current->getLeft());
-		current->getLeft()->setParent(current->getParent());
-	      } else {
-		current->getParent()->setRight(NULL);
+		temp = temp->getRight();
 	      }
 	    }
+	    if(temp->getValue() < temp->getParent()->getValue()) {
+	      if(temp->getLeft() != NULL) {	
+		temp->getParent()->setLeft(temp->getLeft());
+		temp->getLeft()->setParent(temp->getParent());
+	      } else {
+		temp->getParent()->setLeft(NULL);
+	      }
+	    } else {
+	      if(temp->getLeft() != NULL) {
+		temp->getParent()->setRight(temp->getLeft());
+		temp->getLeft()->setParent(temp->getParent());
+	      } else {
+		temp->getParent()->setRight(NULL);
+	      }
+	    }
+	    delete temp;
+	    temp = NULL;
           } else {
             fixTreeDeleteRight(current, treeRoot);
 	    if(current->getValue() < current->getParent()->getValue()) {
