@@ -1,4 +1,4 @@
-// This is the Red Black Tree project, which sorts integer values into a binary tree following RBT properties. Last modified by Jason Randolph on 4-7-23.
+// This is the Red Black Tree project, which sorts integer values into a binary tree following RBT properties. Last modified by Jason Randolph on 5-19-23.
 
 // Imports
 #include <iostream>
@@ -72,6 +72,7 @@ int main() {
         cin.clear();
         cin.ignore(10000, '\n');
         remove(treeRoot, num, treeRoot);
+        cout << "Your number has been deleted." << endl;
       }
     } else if(strcmp(input, "QUIT") == 0) {
       active = false;
@@ -82,7 +83,9 @@ int main() {
   return 0;
 }
 
+// fixTree function for deletion. This works for all nodes that are a left child of their parent.
 void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
+  // Establish parent and sibling nodes and check for NULL
   Node* parent = NULL;
   if(current->getParent() != NULL) {
     parent = current->getParent(); 
@@ -93,18 +96,20 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
       sibling = current->getParent()->getRight(); 
     }
   }
-  // case 1
+  // case 1: parent is NULL
   if(parent == NULL) {
     return;
   }
   if(sibling != NULL) {
-    // case 2
+    // case 2: parent and sibling's children are black, and sibling is red
     if(sibling->getColor() == 0) {
+      // perform tree rotation
       if(sibling->getLeft() != NULL) {
         parent->setRight(sibling->getLeft());
         sibling->getLeft()->setParent(parent);
       }
       sibling->setParent(parent->getParent());
+      // check sibling and parent's parent values to set appropriate child position
       if(sibling->getValue() < parent->getParent()->getValue()) {
         parent->getParent()->setLeft(sibling); 
       } else {
@@ -112,56 +117,61 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
       }
       sibling->setLeft(parent);
       parent->setParent(sibling);
+      // swapping colors
       int color = parent->getColor();
       parent->setColor(sibling->getColor());
       sibling->setColor(color);
+      // calling the function again on current since case 2 isn't a terminal cases
       fixTreeDeleteLeft(current, treeRoot);
-      // case 3
+    // case 3: parent, sibling, and sibling's children are black
     } else if(sibling->getColor() + parent->getColor() == 2 && sibling->getLeft() != NULL && sibling->getRight() != NULL) {
       if(sibling->getLeft()->getColor() == 1 && sibling->getRight()->getColor() == 1) {
+        // set sibling to red and call function on parent
         sibling->setColor(0);
         fixTreeDeleteLeft(parent, treeRoot);
       }
     }
-    // case 3 but with NULL children
+    // case 3 but sibling has NULL children
     if(sibling->getColor() + parent->getColor() == 2 && sibling->getLeft() == NULL && sibling->getRight() == NULL) {
       sibling->setColor(0);
       fixTreeDeleteLeft(parent, treeRoot);
     }
-    // case 4
+    // case 4: parent is red, sibling and sibling's children are black
     if(sibling->getRight() != NULL && sibling->getLeft() != NULL) {
       if(parent->getColor() == 0 && sibling->getColor() + sibling->getRight()->getColor() + sibling->getLeft()->getColor() == 3) {
+        // swap parent and sibling colors and return since this is a terminal case
         parent->setColor(1);
         sibling->setColor(0);
 	      return;
       }
-      // case 4 but with NULL children
     }
+    // case 4 but sibling has NULL children
     if(sibling->getLeft() == NULL && sibling->getRight() == NULL && parent->getColor() == 0 && sibling->getColor() == 1) {
       parent->setColor(1);
       sibling->setColor(0);
       return;
     }
-    // case 5
+    // case 5: parent, sibling, and sibling's right are black, but sibling's left is black
     if(sibling->getRight() != NULL && sibling->getLeft() != NULL) {
       if(sibling->getColor() + sibling->getRight()->getColor() == 2 && sibling->getLeft()->getColor() == 0 && current->getValue() < parent->getValue()) {
+        // tree rotation through sibling
         parent->setRight(sibling->getLeft());
         sibling->getLeft()->setParent(parent);
         if(sibling->getLeft()->getRight() != NULL) {
           sibling->getLeft()->getRight()->setParent(sibling);
           sibling->setLeft(sibling->getLeft()->getRight());
         } else {
-	  sibling->setLeft(NULL);
-	}
+	        sibling->setLeft(NULL);
+	      }
         parent->getRight()->setRight(sibling);
         sibling->setParent(parent->getRight());
+        // setting sibling to red and its child to black
         sibling->setColor(0);
         sibling->getParent()->setColor(1);
-	fixTreeDeleteLeft(current, treeRoot);
+      	fixTreeDeleteLeft(current, treeRoot);
       }
-     // case 5 but with NULL children
+     // case 5 but sibling has a NULL right child
     } else if(sibling->getRight() == NULL && sibling->getLeft() != NULL) {
-      cout << "hi" << endl;
       if(sibling->getColor() == 1 && sibling->getLeft()->getColor() == 0 && current->getValue() < parent->getValue()) {
         parent->setRight(sibling->getLeft());
         sibling->getLeft()->setParent(parent);
@@ -169,21 +179,23 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
           sibling->getLeft()->getRight()->setParent(sibling);
           sibling->setLeft(sibling->getLeft()->getRight());
         } else {
-	  sibling->setLeft(NULL);
-	}
+	        sibling->setLeft(NULL);
+	      }
         parent->getRight()->setRight(sibling);
         sibling->setParent(parent->getRight());
         sibling->setColor(0);
         sibling->getParent()->setColor(1);
-	fixTreeDeleteLeft(current, treeRoot);
+	      fixTreeDeleteLeft(current, treeRoot);
       }
     }
-    // case 6
+    // case 6: sibling is black and sibling's right is red
     if(sibling->getRight() != NULL) {
       if(sibling->getColor() == 1 && sibling->getRight()->getColor() == 0 && current->getValue() < parent->getValue()){
+        // check for parent's parent before rotating. If parent's parent is NULL, sibling becomes the new treeNode
         if(parent->getParent() == NULL) {
           sibling->setParent(NULL);
           treeRoot = sibling;
+          // tree rotation through parent
         } else {
 	        if(parent->getValue() < parent->getParent()->getValue()) {
             parent->getParent()->setLeft(sibling); 
@@ -200,6 +212,7 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
         }
         parent->setParent(sibling);
         sibling->setLeft(parent);
+        // swapping parent and sibling colors
         int color = sibling->getColor();
         sibling->setColor(parent->getColor());
 	      sibling->getRight()->setColor(1);
@@ -209,6 +222,7 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
   }
 }
 
+// same function as above except it's designed for nodes that are the right child of their parent. All directions (left/right) are reversed, otherwise code is the same
 void fixTreeDeleteRight(Node* &current, Node* &treeRoot) {
   Node* parent = NULL;
   if(current->getParent() != NULL) {
@@ -335,6 +349,8 @@ void fixTreeDeleteRight(Node* &current, Node* &treeRoot) {
   }
 }
 
+/* remove function. If the node has one child, it'll delete or fix the tree depending on the colors. Same for one child in the opposite direction. If it has 
+ * two children, it'll find the in order successor and then repeat the process. Either way, tree is always fixed prior to actual node deletion. */
 void remove(Node* &inputNode, int value, Node* &treeRoot) {
   // Value match found
   int traversalCounter = 0;
@@ -344,6 +360,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
     if(inputNode->getColor() == 0) {
       // Node has two children
       if(inputNode->getLeft() != NULL && inputNode->getRight() != NULL) {
+        // find in-order successor (IOS)
         current = inputNode->getLeft();
 	      int traversalCounter = 0;
         while(current->getRight() != NULL) {
@@ -352,6 +369,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
         }
         // IOS has left child
         if(current->getLeft() != NULL) {
+          // IOS's left child is red, so change to black and set it to the IOS. Then, delete the IOS
           if(current->getColor() != current->getLeft()->getColor()) {
       	    if(traversalCounter > 0) {
       	      current->getParent()->setRight(current->getLeft());
@@ -364,22 +382,26 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
             delete current;
             return;
           }
-        // IOS is red
+        // IOS has no left child and is red
         } else if(current->getColor() == 0) {
+          // traversalCounter used to keep track of whether IOS is a left or right child
       	  if(traversalCounter > 0) {
       	    current->getParent()->setRight(NULL);
       	  } else {
       	    current->getParent()->setLeft(NULL);
       	  } 
+          // replace with IOS' value and then delete IOS
       	  inputNode->setValue(current->getValue());
       	  delete current;
       	  return;
       	}
+        // IOS is black, so fix the tree
         if(traversalCounter == 0) {
           fixTreeDeleteLeft(current, treeRoot);
         } else {
           fixTreeDeleteRight(current, treeRoot);
         }
+        // find IOS of IOS and delete original IOS
         Node* tempNode = treeRoot;
         while(tempNode->getValue() != value) {
           if(value < tempNode->getValue()) {
@@ -406,17 +428,16 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
         }
         delete current;
         current = NULL;
+      // node has left child
       } else if(inputNode->getLeft() != NULL && inputNode->getRight() == NULL) { 
       	int traversalCounter = 0;
       	current = inputNode->getLeft();
+        // find IOS
         while(current->getRight() != NULL) {
       	  current = current->getRight();
       	  traversalCounter++;
       	}
         inputNode->setValue(current->getValue());
-        /*if(current->getColor() == 1) {
-          inputNode->setColor(1); 
-	       }*/
         // inorder successor has left child
         if(current->getLeft() != NULL) {
       	  if(traversalCounter > 0) {
@@ -477,6 +498,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
             current->getParent()->setRight(current->getRight()); 
           }
           delete current;
+        // right child is red, so delete and replace
         } else if(current->getRight()->getColor() == 0) {
       	  if(current->getParent() != NULL) {
       	    if(current->getValue() < current->getParent()->getValue()) {
@@ -493,6 +515,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
       	  }
       	  delete current;
       	  current = NULL;
+        // right child is black, so fix the tree
       	} else {
           fixTreeDeleteRight(current, treeRoot);
         }
@@ -507,6 +530,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
             current->getParent()->setRight(current->getLeft()); 
           }
           delete current;
+        // left child is red, so delete and replace
         } else if(current->getLeft()->getColor() == 0) {
       	  if(current->getParent() != NULL) {
       	    if(current->getValue() < current->getParent()->getValue()) {
@@ -523,63 +547,67 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
       	  }
       	  delete current;
       	  current = NULL;
+        // left child is black, so fix the tree
       	} else {
           fixTreeDeleteLeft(current, treeRoot);
         }
         // node has no children
       } else if(current->getRight() == NULL && current->getLeft() == NULL) {
+        // if parent is NULL, node is deleted and treeRoot is NULL
         if(current->getParent() == NULL) {
           delete inputNode;
           treeRoot = NULL;
           return;
         } else {
+          // IOS is a left child
           if(current->getValue() < current->getParent()->getValue()) {
             fixTreeDeleteLeft(current, treeRoot);
-	    if(current->getValue() < current->getParent()->getValue()) {
-	      if(current->getLeft() != NULL) {	
-		current->getParent()->setLeft(current->getLeft());
-		current->getLeft()->setParent(current->getParent());
-	      } else {
-		current->getParent()->setLeft(NULL);
-	      }
-	    } else {
-	      if(current->getLeft() != NULL) {
-		current->getParent()->setRight(current->getLeft());
-		current->getLeft()->setParent(current->getParent());
-	      } else {
-		current->getParent()->setRight(NULL);
-	      }
-	    }
-	    delete current;
-	    current = NULL;
-	    return;
+            if(current->getValue() < current->getParent()->getValue()) {
+              if(current->getLeft() != NULL) {	
+                current->getParent()->setLeft(current->getLeft());
+                current->getLeft()->setParent(current->getParent());
+              } else {
+                current->getParent()->setLeft(NULL);
+              }
+            } else {
+              if(current->getLeft() != NULL) {
+                current->getParent()->setRight(current->getLeft());
+                current->getLeft()->setParent(current->getParent());
+              } else {
+                current->getParent()->setRight(NULL);
+              }
+            }
+            delete current;
+            current = NULL;
+            return;
+            // IOS is a right child
           } else {
             fixTreeDeleteRight(current, treeRoot);
-	    cout << current->getValue() << endl;
             if(current->getValue() >= current->getParent()->getValue()) {
-	      if(current->getRight() != NULL) {	
-		current->getParent()->setRight(current->getRight());
-		current->getRight()->setParent(current->getParent());
-	      } else {
-		current->getParent()->setRight(NULL);
-	      }
-	    } else {
-	      if(current->getRight() != NULL) {
-		current->getParent()->setLeft(current->getRight());
-		current->getRight()->setParent(current->getParent());
-	      } else {
-		current->getParent()->setLeft(NULL);
-	      }
-	    }
-	    delete current;
-	    current = NULL;
-	    return;
+              if(current->getRight() != NULL) {	
+                current->getParent()->setRight(current->getRight());
+                current->getRight()->setParent(current->getParent());
+              } else {
+                current->getParent()->setRight(NULL);
+              }
+            } else {
+              if(current->getRight() != NULL) {
+                current->getParent()->setLeft(current->getRight());
+                current->getRight()->setParent(current->getParent());
+              } else {
+                current->getParent()->setLeft(NULL);
+              }
+            }
+            delete current;
+            current = NULL;
+            return;
           }
         }
         // node has two children
       } else if(inputNode->getLeft() != NULL && inputNode->getRight() != NULL) {
+        // find IOS
         current = inputNode->getLeft();
-	int traversalCounter = 0;
+	      int traversalCounter = 0;
         while(current->getRight() != NULL) {
           current = current->getRight();
 	        traversalCounter++;
@@ -594,7 +622,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
       	  inputNode->setValue(current->getValue());
       	  delete current;
       	  return;
-	  // IOS has red left child
+        // IOS has red left child
       	} else if(current->getLeft() != NULL) {
           if(current->getColor() != current->getLeft()->getColor()) {
       	    if(traversalCounter > 0) {
@@ -604,16 +632,17 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
       	    }
             current->getLeft()->setColor(1);
             current->getLeft()->setParent(current->getParent());
-	    inputNode->setValue(current->getValue());
+	          inputNode->setValue(current->getValue());
             delete current;
             return;
           }
-	  // IOS has no children
+	      // IOS has no children, so fix tree depending on IOS' child status
         } else if(traversalCounter == 0) {
           fixTreeDeleteLeft(current, treeRoot);
         } else {
           fixTreeDeleteRight(current, treeRoot);
         }
+        // Once the tree has been fixed, replace the deleted value's node with IOS node's value and then delete the IOS
         Node* tempNode = treeRoot;
         while(tempNode->getValue() != value) {
           if(value < tempNode->getValue()) {
@@ -658,6 +687,7 @@ void remove(Node* &inputNode, int value, Node* &treeRoot) {
   } 
 }
 
+// search function. Searches the tree based on value. If it reaches the end of the tree without encountering the value, no value exists in the tree
 void search(Node* treeRoot, int value) {
   if(treeRoot == NULL) {
     cout << "The value " << value << " is not in the tree." << endl;
@@ -674,7 +704,7 @@ void search(Node* treeRoot, int value) {
   }
 }
 
-// fix tree function. Checks for 4 cases (root = NULL is checked in the add function). 
+// fix tree function for insertion. Checks for 4 cases (root = NULL is checked in the add function). 
 void fixTree(Node* &newNode, Node* &treeRoot) {
   // initialize parent. If the parent is NULL, the node must be the root and is set to black. Otherwise, parent is set to the node's parent.
   Node* parent = NULL;
