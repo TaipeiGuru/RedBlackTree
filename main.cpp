@@ -72,7 +72,6 @@ int main() {
         cin.clear();
         cin.ignore(10000, '\n');
         remove(treeRoot, num, treeRoot);
-        cout << "Your number has been deleted." << endl;
       }
     } else if(strcmp(input, "QUIT") == 0) {
       active = false;
@@ -104,16 +103,19 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
     // case 2: parent and sibling's children are black, and sibling is red
     if(sibling->getColor() == 0 && sibling->getLeft() != NULL && sibling->getRight() != NULL) {
       // perform tree rotation
-      if(sibling->getLeft() != NULL) {
-        parent->setRight(sibling->getLeft());
-        sibling->getLeft()->setParent(parent);
-      }
-      sibling->setParent(parent->getParent());
-      // check sibling and parent's parent values to set appropriate child position
-      if(sibling->getValue() < parent->getParent()->getValue()) {
-        parent->getParent()->setLeft(sibling); 
+      parent->setRight(sibling->getLeft());
+      sibling->getLeft()->setParent(parent);
+      if(parent->getParent() != NULL) {
+	sibling->setParent(parent->getParent());
+	// check sibling and parent's parent values to set appropriate child position
+	if(sibling->getValue() < parent->getParent()->getValue()) {
+	  parent->getParent()->setLeft(sibling); 
+	} else {
+	  parent->getParent()->setRight(sibling); 
+	}
       } else {
-        parent->getParent()->setRight(sibling); 
+	sibling->setParent(NULL);
+	treeRoot = sibling;
       }
       sibling->setLeft(parent);
       parent->setParent(sibling);
@@ -123,16 +125,23 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
       sibling->setColor(color);
       // calling the function again on current since case 2 isn't a terminal cases
       fixTreeDeleteLeft(current, treeRoot);
-	    return; //
+      return; //
     }
     // case 2 but sibling's children are NULL
     if(sibling->getColor() == 0 && sibling->getLeft() == NULL && sibling->getRight() == NULL) {
       parent->setRight(NULL);
       sibling->setParent(parent->getParent());
-      if(sibling->getValue() < parent->getParent()->getValue()) {
-        parent->getParent()->setLeft(sibling); 
+      if(parent->getParent() != NULL) {
+	sibling->setParent(parent->getParent());
+	// check sibling and parent's parent values to set appropriate child position
+	if(sibling->getValue() < parent->getParent()->getValue()) {
+	  parent->getParent()->setLeft(sibling); 
+	} else {
+	  parent->getParent()->setRight(sibling); 
+	}
       } else {
-        parent->getParent()->setRight(sibling); 
+	sibling->setParent(NULL);
+	treeRoot = sibling;
       }
       sibling->setLeft(parent);
       parent->setParent(sibling);
@@ -147,14 +156,30 @@ void fixTreeDeleteLeft(Node* &current, Node* &treeRoot) {
       if(sibling->getLeft()->getColor() == 1 && sibling->getRight()->getColor() == 1) {
         // set sibling to red and call function on parent
         sibling->setColor(0);
-        fixTreeDeleteLeft(parent, treeRoot);
+	if(parent->getParent() != NULL) {
+	  if(parent->getValue() < parent->getParent()->getValue()) {
+	    fixTreeDeleteLeft(parent, treeRoot);
+	  } else {
+	    fixTreeDeleteRight(parent, treeRoot);
+	  }
+	} else {
+	  fixTreeDeleteLeft(parent, treeRoot);
+	}
         return; //
       }
     }
     // case 3 but sibling has NULL children
     if(sibling->getColor() + parent->getColor() == 2 && sibling->getLeft() == NULL && sibling->getRight() == NULL) {
       sibling->setColor(0);
-      fixTreeDeleteLeft(parent, treeRoot);
+      if(parent->getParent() != NULL) {
+	if(parent->getValue() < parent->getParent()->getValue()) {
+	  fixTreeDeleteLeft(parent, treeRoot);
+	} else {
+	  fixTreeDeleteRight(parent, treeRoot);
+	}
+      } else {
+	fixTreeDeleteLeft(parent, treeRoot);
+      }
       return; //
     }
     // case 4: parent is red, sibling and sibling's children are black
@@ -265,15 +290,18 @@ void fixTreeDeleteRight(Node* &current, Node* &treeRoot) {
   if(sibling != NULL) {
     // case 2
     if(sibling->getColor() == 0 && sibling->getLeft() != NULL && sibling->getRight() != NULL) {
-      if(sibling->getLeft() != NULL) {
-        parent->setLeft(sibling->getRight());
-        sibling->getRight()->setParent(parent);
-      }
-      sibling->setParent(parent->getParent());
-      if(sibling->getValue() < parent->getParent()->getValue()) {
-        parent->getParent()->setLeft(sibling); 
+      parent->setLeft(sibling->getRight());
+      sibling->getRight()->setParent(parent);
+      if(parent->getParent() != NULL) {
+	sibling->setParent(parent->getParent());
+	if(sibling->getValue() < parent->getParent()->getValue()) {
+	  parent->getParent()->setLeft(sibling); 
+	} else {
+	  parent->getParent()->setRight(sibling); 
+	}
       } else {
-        parent->getParent()->setRight(sibling); 
+	sibling->setParent(NULL);
+	treeRoot = sibling;
       }
       sibling->setRight(parent);
       parent->setParent(sibling);
@@ -287,10 +315,16 @@ void fixTreeDeleteRight(Node* &current, Node* &treeRoot) {
     if(sibling->getColor() == 0 && sibling->getLeft() == NULL && sibling->getRight() == NULL) {
       parent->setLeft(sibling->getRight());
       sibling->setParent(parent->getParent());
-      if(sibling->getValue() < parent->getParent()->getValue()) {
-        parent->getParent()->setLeft(sibling); 
+      if(parent->getParent() != NULL) {
+	sibling->setParent(parent->getParent());
+	if(sibling->getValue() < parent->getParent()->getValue()) {
+	  parent->getParent()->setLeft(sibling); 
+	} else {
+	  parent->getParent()->setRight(sibling); 
+	}
       } else {
-        parent->getParent()->setRight(sibling); 
+	sibling->setParent(NULL);
+	treeRoot = sibling;
       }
       sibling->setRight(parent);
       parent->setParent(sibling);
@@ -303,15 +337,31 @@ void fixTreeDeleteRight(Node* &current, Node* &treeRoot) {
     // case 3
     if(sibling->getColor() + parent->getColor() == 2 && sibling->getRight() != NULL && sibling->getLeft() != NULL) {
       if(sibling->getRight()->getColor() == 1 && sibling->getLeft()->getColor() == 1) {
-	      sibling->setColor(0);
-	      fixTreeDeleteRight(parent, treeRoot);
+	sibling->setColor(0);
+	if(parent->getParent() != NULL) {
+	  if(parent->getValue() < parent->getParent()->getValue()) {
+	    fixTreeDeleteLeft(parent, treeRoot);
+	  } else {
+	    fixTreeDeleteRight(parent, treeRoot);
+	  }
+	} else {
+	  fixTreeDeleteRight(parent, treeRoot);
+	}
         return; //
       }
     }
     // case 3 but with NULL children
     if(sibling->getColor() + parent->getColor() == 2 && sibling->getRight() == NULL && sibling->getLeft() == NULL) {
       sibling->setColor(0);
-      fixTreeDeleteRight(parent, treeRoot);
+      if(parent->getParent() != NULL) {
+	if(parent->getValue() < parent->getParent()->getValue()) {
+	  fixTreeDeleteLeft(parent, treeRoot);
+	} else {
+	  fixTreeDeleteRight(parent, treeRoot);
+	}
+      } else {
+	fixTreeDeleteRight(parent, treeRoot);
+      }
       return; //
     }
     // case 4
